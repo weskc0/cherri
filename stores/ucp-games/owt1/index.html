@@ -141,14 +141,62 @@
 		<div id='status-notice' class='godot' style='display: none;'></div>
 	</div>
 
-	<script type='text/javascript' src='index.js'></script>
+	<script type='text/javascript'>//<![CDATA[
+		// index.pck was split into 2 parts (index.pck.part0/1) to stay under
+		// Cloudflare Workers' 25 MiB per-asset limit. This preloads the parts,
+		// combines them into a single Blob, and transparently redirects Godot's
+		// XMLHttpRequest for index.pck to that blob so the engine loads the
+		// exact same bytes it always did, just reassembled in memory first.
+		(function() {
+
+			var PCK_PARTS = ['index.pck.part0', 'index.pck.part1'];
+			var mainPackBlobUrl = null;
+
+			function isMainPackUrl(url) {
+				return /(^|\/)index\.pck(\?.*)?$/.test(url);
+			}
+
+			var OrigOpen = XMLHttpRequest.prototype.open;
+			XMLHttpRequest.prototype.open = function(method, url) {
+				if (mainPackBlobUrl && isMainPackUrl(url)) {
+					var args = Array.prototype.slice.call(arguments);
+					args[1] = mainPackBlobUrl;
+					return OrigOpen.apply(this, args);
+				}
+				return OrigOpen.apply(this, arguments);
+			};
+
+			function fetchPart(url) {
+				return fetch(url).then(function(res) {
+					if (!res.ok) {
+						throw new Error('Failed to fetch ' + url + ': ' + res.status);
+					}
+					return res.blob();
+				});
+			}
+
+			var statusNotice = document.getElementById('status-notice');
+			document.getElementById('status').style.visibility = 'visible';
+			statusNotice.textContent = 'Loading game files…';
+			statusNotice.style.display = 'block';
+
+			window.__mainPackReady = Promise.all(PCK_PARTS.map(fetchPart)).then(function(blobs) {
+				mainPackBlobUrl = URL.createObjectURL(new Blob(blobs, { type: 'application/octet-stream' }));
+			}, function(err) {
+				console.error(err);
+				statusNotice.textContent = 'Failed to load game files: ' + (err.message || err);
+			});
+		})();
+	//]]></script>
 	<script type='text/javascript'>//<![CDATA[
 
-		var engine = new Engine;
+		var engine;
 		var setStatusMode;
 		var setStatusNotice;
 
-		(function() {
+		function startGodotGame() {
+
+			engine = new Engine;
 
 			const EXECUTABLE_NAME = 'index';
 			const MAIN_PACK = 'index.pck';
@@ -268,7 +316,18 @@
 					initializing = false;
 				}, displayFailureNotice);
 			}
-		})();
+		}
+
+		window.__mainPackReady.then(function() {
+			var script = document.createElement('script');
+			script.type = 'text/javascript';
+			script.src = 'index.js';
+			script.onload = startGodotGame;
+			script.onerror = function() {
+				console.error('Failed to load index.js');
+			};
+			document.body.appendChild(script);
+		});
 	//]]></script>
 </body>
 </html>
