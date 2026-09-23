@@ -85,11 +85,6 @@
     "img": "/assets/img/games/aswc2023.png"
   },
   {
-    "name": "1v1 LOL",
-    "url": "/stores/ucp-games/1v1lol/",
-    "img": "/assets/img/games/1v1lol.png"
-  },
-  {
     "name": "OvO",
     "url": "/stores/ucp-games/ovo/",
     "img": "/assets/img/games/ovo.png"
@@ -103,11 +98,6 @@
     "name": "Drift Boss",
     "url": "/stores/ucp-games/driftboss/",
     "img": "/assets/img/games/driftboss.png"
-  },
-  {
-    "name": "Geometry Dash",
-    "url": "/stores/ucp-games/html/gd.html",
-    "img": "/assets/img/games/gd.png"
   },
   {
     "name": "FNAF",
@@ -245,7 +235,7 @@
     "img": "/assets/img/games/moto3.png"
   },
   {
-    "name": "MURDER 🗡️",
+    "name": "MURDER \ud83d\udde1\ufe0f",
     "url": "/stores/ucp-games/murder/",
     "img": "/assets/img/games/murder.png"
   },
@@ -423,11 +413,6 @@
     "name": "Pokemon",
     "url": "/stores/ucp-games/atlas-games/pokemon/",
     "img": "/assets/img/games/pokemon.png"
-  },
-  {
-    "name": "Rocket League",
-    "url": "/stores/ucp-games/atlas-games/rocketleague/",
-    "img": "/assets/img/games/rl.png"
   },
   {
     "name": "Rooftop Snipers",
